@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-microk8s-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /demo-microk8s(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-microk8s
+            port:
+              number: 8080
+  ingressClassName: nginx
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: demo-microk8s
+  labels:
+    app: demo-microk8s
+spec:
+  type: ClusterIP
+  selector:
+    app: demo-microk8s
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-microk8s
+  labels:
+    app: demo-microk8s
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: demo-microk8s
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: demo-microk8s
+          image: localhost:32000/demo-microk8s
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
