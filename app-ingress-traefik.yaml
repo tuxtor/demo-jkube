@@ -1,18 +1,43 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: demo-k3d-stripprefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /demo-k3d
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: demo-k3d-ingressroute
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/demo-k3d`)
+      kind: Rule
+      services:
+        - name: demo-k3d
+          port: 8080
+      middlewares:
+        - name: demo-k3d-stripprefix
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: demo-microk8s-ingress
+  name: demo-k3d-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - http:
       paths:
-      - path: /demo-microk8s(/|$)(.*)
+      - path: /demo-k3d(/|$)(.*)
         pathType: Prefix
         backend:
           service:
-            name: demo-microk8s
+            name: demo-k3d
             port:
               number: 8080
   ingressClassName: nginx
@@ -20,13 +45,13 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: demo-microk8s
+  name: demo-k3d
   labels:
-    app: demo-microk8s
+    app: demo-k3d
 spec:
   type: ClusterIP
   selector:
-    app: demo-microk8s
+    app: demo-k3d
   ports:
   - port: 8080
     targetPort: 8080
@@ -35,9 +60,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-microk8s
+  name: demo-k3d
   labels:
-    app: demo-microk8s
+    app: demo-k3d
 spec:
   selector:
     matchLabels:
@@ -48,12 +73,12 @@ spec:
   template:
     metadata:
       labels:
-        app: demo-microk8s
+        app: demo-k3d
         octopusexport: OctopusExport
     spec:
       containers:
-        - name: demo-microk8s
-          image: localhost:32000/demo-microk8s
+        - name: demo-k3d
+          image: star-destroyer.vorozco.local:5000/demo-jkube:latest
           imagePullPolicy: Always
           ports:
             - name: http

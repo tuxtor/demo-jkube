@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /demo-jkube(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: demo-jkube
+                port:
+                  number: 8080
+  ingressClassName: nginx

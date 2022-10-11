@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
     <groupId>com.vorozco</groupId>
-    <artifactId>demo-minik8s</artifactId>
+    <artifactId>demo-jkube</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -101,6 +101,27 @@
                         <id>make-index</id>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jkube</groupId>
+                <artifactId>kubernetes-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <images>
+                        <image>
+                            <name>star-destroyer.vorozco.local:5000/%a:%l</name>
+                                <build>
+
+                                    <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+                                    <assembly>
+                                        <name>target</name>
+                                        <targetDir>/</targetDir>
+                                    </assembly>
+                                </build>
+                        </image>
+                    </images>
+                </configuration>
             </plugin>
         </plugins>
     </build>

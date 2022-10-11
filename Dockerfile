@@ -1,6 +1,6 @@
 
 # 1st stage, build the app
-FROM maven:3.8.4-openjdk-17-slim as build
+FROM maven:3.8.6-eclipse-temurin-17-alpine as build
 
 WORKDIR /helidon
 
@@ -18,13 +18,13 @@ RUN mvn package -DskipTests
 RUN echo "done!"
 
 # 2nd stage, build the runtime image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17.0.4.1_1-jdk-alpine
 WORKDIR /helidon
 
 # Copy the binary built in the 1st stage
-COPY --from=build /helidon/target/demo-minikube.jar ./
+COPY --from=build /helidon/target/demo-jkube.jar ./
 COPY --from=build /helidon/target/libs ./libs
 
-CMD ["java", "-jar", "demo-minikube.jar"]
+CMD ["java", "-jar", "demo-jkube.jar"]
 
 EXPOSE 8080
